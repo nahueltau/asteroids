@@ -1,0 +1,25 @@
+html, body{
+    height: 100vh;
+    margin: 0;padding: 0;
+}
+body{
+    display: grid;
+    grid-template-columns: auto;
+    background-color: #DDD;
+
+}
+div{
+    align-self: end;
+    justify-self:center;
+}
+p{
+    align-self: start;
+    justify-self:center;
+}
+
+@media(max-height=600px){
+    html, body{
+        font-size: 6px;
+    } 
+ 
+}
