@@ -77,8 +77,8 @@ const shotOne = function(){
     restartAsteroid();
 	
 
-	//SHAPE 1
-		const S1 = [{X:0,Y:0},{X:20,Y:-20},{X:30,Y:-20},{X:40,Y:-30},{X:40,Y:-10},{X:50,Y:-20},{X:60,Y:0},{X:40,Y:30},{X:40,Y:20},{X:30,Y:20},{X:20,Y:10},{X:10,Y:20},{X:0,Y:0}];
+//ASTEROID SHAPE 1
+	const S1 = [{X:0,Y:0},{X:20,Y:-20},{X:30,Y:-20},{X:40,Y:-30},{X:40,Y:-10},{X:50,Y:-20},{X:60,Y:0},{X:40,Y:30},{X:40,Y:20},{X:30,Y:20},{X:20,Y:10},{X:10,Y:20},{X:0,Y:0}];
 
 
 //HIT
@@ -159,7 +159,7 @@ let draw = function(){
 				restartAsteroid();
 			}
 		//Hit
-			let divide = function(a,b){ //discards not finite results
+			let divide = function(a,b){ //discards infinite results
 				if (isFinite(a/b)) {
 					return a/b;
 				}else{return 0;}
@@ -200,21 +200,10 @@ let draw = function(){
 						
 					
 					}
-
-						/*
-						ctx.beginPath();
-						ctx.arc(shipX+40*Math.sin(rad), shipY+(40*Math.cos(rad)), 1, 0, 2 * Math.PI);
-						ctx.strokeStyle = "#F3F";
-						ctx.lineWidth = 3;
-						ctx.stroke();
-						*/
-					
-						
-
 				}
 
 	
-			
+//CHECK IF GAME OVER		
 if (LOST) {
 	clearInterval(myInterval);
 	ctx.font = "72px Arial";
