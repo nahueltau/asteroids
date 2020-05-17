@@ -15,12 +15,14 @@ ctx.scale(.7,.7);
 //COUNTERS
 let hitCounter = 0;
 let bulletCounter = 0;
+let LOST = false;
 
-//SHIP
+//SHIP SETUP
 let shipX = 250;
 let shipY = 250;
-let ang = 0;
-let rad = ang*Math.PI/180;
+let shipAngle = 0;
+let shipAngleRadians = shipAngle*Math.PI/180;
+	//Ship shape
 ctx.moveTo(shipX,shipY);
 ctx.lineTo(shipX-15,shipY);
 ctx.lineTo(shipX,shipY+40);
@@ -30,28 +32,28 @@ ctx.strokeStyle = "#FFF";
 ctx.lineWidth = 2;
 ctx.stroke();
 
-let LOST = false;
-//BULLETS
-let bulletX =10000;
-let bulletY=10000;
-let end = 1;
+
+//BULLETS SETUP
+let bulletPosX =10000;
+let bulletPosY=10000;
+let bulletDistance = 1;
 let inShot = false;
-let radShot;
-let xShot;
-let	yShot;
+let shotAngle;
+let xAtShot;
+let	yAtShot;
 const shotOne = function(){
 			if(inShot!==true){
-				radShot = rad;
-				xShot = shipX;
-				yShot = shipY;
+				shotAngle = shipAngleRadians;
+				xAtShot = shipX;
+				yAtShot = shipY;
 				bulletCounter++;
 				 }
 			inShot = true;
 			
 }
 
-//ASTERIODS
-	const startingP = [
+//ASTERIODS SETUP
+	const startingPoint = [
 			{X:-100,Y:160},
 			{X:-100,Y:320},
 			{X:-100,Y:380},
@@ -62,16 +64,16 @@ const shotOne = function(){
 			{X: 900,Y:540},
 
 	]
-	let angles;
-	let startRandom;
+	let asteroidAngle;
+	let randomStart;
 	let A1X;
 	let A1Y;
     const restartAsteroid = function(){
-    	angles = Math.floor(Math.random()*(135-45)+45)*Math.PI/180;
-		startRandom = Math.floor(Math.random()*7);
-		A1X = startingP[startRandom].X;
-		A1Y = startingP[startRandom].Y;
-		if(startingP[startRandom].X==900){angles = angles + Math.PI};
+    	asteroidAngle = Math.floor(Math.random()*(135-45)+45)*Math.PI/180;
+		randomStart = Math.floor(Math.random()*7);
+		A1X = startingPoint[randomStart].X;
+		A1Y = startingPoint[randomStart].Y;
+		if(startingPoint[randomStart].X==900){asteroidAngle = asteroidAngle + Math.PI};
 
     }
     restartAsteroid();
@@ -112,32 +114,32 @@ let draw = function(){
 			ctx.lineWidth = 3;
 			ctx.stroke();
 			ctx.beginPath();
-			ctx.rect(300, 815, 150-end*1.5, 20);
+			ctx.rect(300, 815, 150-bulletDistance*1.5, 20);
 			ctx.fillStyle = "#333";
 			ctx.fill();
 
 			//SHIP
 			ctx.beginPath();
 			ctx.moveTo(shipX,shipY);
-			ctx.lineTo(shipX-15*Math.cos(rad*-1),shipY-15*Math.sin(rad*-1));
-			ctx.lineTo(shipX+40*Math.sin(rad),shipY+40*Math.cos(rad));
-			ctx.lineTo(shipX+15*Math.cos(rad*-1),shipY+15*Math.sin(rad*-1));
+			ctx.lineTo(shipX-15*Math.cos(shipAngleRadians*-1),shipY-15*Math.sin(shipAngleRadians*-1));
+			ctx.lineTo(shipX+40*Math.sin(shipAngleRadians),shipY+40*Math.cos(shipAngleRadians));
+			ctx.lineTo(shipX+15*Math.cos(shipAngleRadians*-1),shipY+15*Math.sin(shipAngleRadians*-1));
 			ctx.lineTo(shipX,shipY);
 			ctx.strokeStyle = "#FFF";
 			ctx.lineWidth = 2;
 			ctx.stroke();
 			//SHOT
 			ctx.beginPath();
-			ctx.arc(bulletX, bulletY, 1, 0, 2 * Math.PI);
+			ctx.arc(bulletPosX, bulletPosY, 1, 0, 2 * Math.PI);
 			ctx.strokeStyle = "#FFF";
 			ctx.lineWidth = 2;
 			ctx.stroke();
 				if(inShot){
-					bulletX = xShot+(40+end*10)*Math.sin(radShot);
-					bulletY = yShot+(40+end*10)*Math.cos(radShot);
-					end++;
+					bulletPosX = xAtShot+(40+bulletDistance*10)*Math.sin(shotAngle);
+					bulletPosY = yAtShot+(40+bulletDistance*10)*Math.cos(shotAngle);
+					bulletDistance++;
 			
-			        if (end==100) {bulletX =800; bulletY=800;inShot=false;end=0;}
+			        if (bulletDistance==100) {bulletPosX =800; bulletPosY=800;inShot=false;bulletDistance=0;}
 		
 				}
 
@@ -152,50 +154,65 @@ let draw = function(){
 			ctx.lineWidth = 2;
 			ctx.stroke();
 		//Movement
-			A1X = A1X + 5*Math.sin(angles);
-			A1Y = A1Y + 5*Math.cos(angles);
+			A1X = A1X + 5*Math.sin(asteroidAngle);
+			A1Y = A1Y + 5*Math.cos(asteroidAngle);
 				//Reset
 			if (A1X>1000||A1Y>1000||A1X<-200||A1Y<-200) {
 				restartAsteroid();
 			}
-		//Hit
+
+//COLLISION CHECK SETUP
 			let divide = function(a,b){ //discards infinite results
 				if (isFinite(a/b)) {
 					return a/b;
 				}else{return 0;}
 			}
-			for (var i = 1; i <= S1.length-1; i++) {
-					//setup
-					delX = S1[i].X-S1[i-1].X;
-					delY = S1[i].Y-S1[i-1].Y;
-					delYA = Math.abs(S1[i].Y-S1[i-1].Y);
-					delXA = Math.abs(S1[i].X-S1[i-1].X);
-					difY = divide(delYA,delY);
-					difX = divide(delXA,delX);
-					difYX = divide(delY,delX);
+			for (let i = 1; i <= S1.length-1; i++) {
+					//variable setup
+					/* 
+					   The idea here is to get the slope for every one of the lines that draw the asteroid,
+					   then check for every point in every line of the asteroid if the X and Y position of that point is close
+					   enough to the X and Y position of the bullet. If it's close enough it can be called a collision.
+					*/
+					//get the difference between the x and y values of 2 consecutive points of the asteroid shape
+					let deltaX = S1[i].X-S1[i-1].X;
+					let deltaY = S1[i].Y-S1[i-1].Y;
 					
-					//x==0 case
-					if (delX==0) {
-						infX = 0;
-						infY = 1;
+					let deltaYabsolute = Math.abs(S1[i].Y-S1[i-1].Y);
+					let deltaXabsolute = Math.abs(S1[i].X-S1[i-1].X);
+					//to check the direction of the line
+					let directionY = divide(deltaYabsolute,deltaY);
+					let directionX = divide(deltaXabsolute,deltaX);
+					//the slope of the line
+					let slopeYX = divide(deltaY,deltaX);
+					
+					//x==0 case, checks if the line of the asteroid shape is a vertical line
+					let constantX;
+					let constantY;
+					if (deltaX==0) {
+						constantX = 0;
+						constantY = 1;
 					}
-					if (delX !== 0){
-						infX = 1;
-						infY = 0;
+					if (deltaX !== 0){
+						constantX = 1;
+						constantY = 0;
 					}
 					
-					//test		
-					for (var key = 0; key <= delXA * infX  + delYA * infY; key++) {
-					
-						testX = A1X + S1[i-1].X + key * difX * infX;
-						testY = A1Y + S1[i-1].Y + key * difYX * difX * infX + difY *  infY * key;
-						
-						if (.99<testX/bulletX && testX/bulletX <1.01 && .99<testY/bulletY && testY/bulletY<1.01) {restartAsteroid();hitCounter++}
-
-						if (.99<testX/(shipX+40*Math.sin(rad)) && testX/(shipX+40*Math.sin(rad)) <1.01 && .99<testY/(shipY+(40*Math.cos(rad))) && testY/(shipY+(40*Math.cos(rad)))<1.01) {LOST = true;}
+					//TEST COLLISION	
+					for (let xAxisValue = 0; xAxisValue <= deltaXabsolute * constantX  + deltaYabsolute * constantY; xAxisValue++) {
+						/* 
+						from 0 to deltaXabsolute we have the domain of the function,
+						deltaYabsolte is for the case of deltaX === 0	
+						*/
+						testX = A1X + S1[i-1].X + xAxisValue * directionX * constantX;
+						testY = A1Y + S1[i-1].Y + xAxisValue * slopeYX * directionX * constantX + directionY *  constantY * xAxisValue;
+						//Test for bullets hitting asteroids
+						if (.99<testX/bulletPosX && testX/bulletPosX <1.01 && .99<testY/bulletPosY && testY/bulletPosY<1.01) {restartAsteroid();hitCounter++}
+						//Test for asteroids hitting ship 
+						if (.99<testX/(shipX+40*Math.sin(shipAngleRadians)) && testX/(shipX+40*Math.sin(shipAngleRadians)) <1.01 && .99<testY/(shipY+(40*Math.cos(shipAngleRadians))) && testY/(shipY+(40*Math.cos(shipAngleRadians)))<1.01) {LOST = true;}
 						if (.99<testX/shipX && testX/shipX <1.01 && .99<testY/shipY && testY/shipY<1.01) {LOST = true;}
-						if (.99<testX/(shipX-15*Math.cos(rad*-1)) && testX/(shipX-15*Math.cos(rad*-1)) <1.01 && .99<testY/(shipY-15*Math.sin(rad*-1)) && testY/(shipY-15*Math.sin(rad*-1))<1.01) {LOST = true;}
-						if (.99<testX/(shipX+15*Math.cos(rad*-1)) && testX/(shipX+15*Math.cos(rad*-1)) <1.01 && .99<testY/(shipY+15*Math.sin(rad*-1)) && testY/(shipY+15*Math.sin(rad*-1))<1.01) {LOST = true;}
+						if (.99<testX/(shipX-15*Math.cos(shipAngleRadians*-1)) && testX/(shipX-15*Math.cos(shipAngleRadians*-1)) <1.01 && .99<testY/(shipY-15*Math.sin(shipAngleRadians*-1)) && testY/(shipY-15*Math.sin(shipAngleRadians*-1))<1.01) {LOST = true;}
+						if (.99<testX/(shipX+15*Math.cos(shipAngleRadians*-1)) && testX/(shipX+15*Math.cos(shipAngleRadians*-1)) <1.01 && .99<testY/(shipY+15*Math.sin(shipAngleRadians*-1)) && testY/(shipY+15*Math.sin(shipAngleRadians*-1))<1.01) {LOST = true;}
 						
 						
 					
@@ -213,6 +230,8 @@ if (LOST) {
 			
 
 		}
+
+//START ANIMATION
 let myInterval = setInterval(draw,25);
 
 
@@ -224,16 +243,16 @@ let myInterval = setInterval(draw,25);
 window.onkeydown = function(e){
 	switch(e.code){
 		case "ArrowUp":
-		shipY+=(10*Math.cos(rad));
-		shipX+=(10*Math.sin(rad));
+		shipY+=(10*Math.cos(shipAngleRadians));
+		shipX+=(10*Math.sin(shipAngleRadians));
 		break;
 		case "ArrowLeft":
-		ang+= 10;
-		rad = ang*Math.PI/180;
+		shipAngle+= 10;
+		shipAngleRadians = shipAngle*Math.PI/180;
 		break;
 		case "ArrowRight":
-		ang-= 10;
-		rad = ang*Math.PI/180;
+		shipAngle-= 10;
+		shipAngleRadians = shipAngle*Math.PI/180;
 		break;
 		case "Space":
 		shotOne();
