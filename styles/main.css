@@ -16,8 +16,11 @@ p{
     align-self: start;
     justify-self:center;
 }
-
-@media(max-height=600px){
+.app{
+    border:3px solid #000000; 
+    background:#333;
+}
+@media(max-height:600px){
     html, body{
         font-size: 6px;
     } 
