@@ -1,15 +1,13 @@
-const main = document.getElementById("main");
+const app: HTMLCanvasElement = document.getElementById("app");
 
 
 //CANVAS
-let canvasHeight = 850*.7;
-let canvasWidth = 800*.7;
-main.innerHTML = "<canvas id='canvas'></canvas>";
-const canvas = document.querySelector("#canvas");
-canvas.setAttribute("height", canvasHeight);
-canvas.setAttribute("width", canvasWidth);
-canvas.setAttribute("style", "border:3px solid #000000; background:#333;")
-const ctx = canvas.getContext("2d");
+let canvasHeight: number = 850*.7;
+let canvasWidth: number = 800*.7;
+app.setAttribute("height", canvasHeight);
+app.setAttribute("width", canvasWidth);
+app.setAttribute("style", "border:3px solid #000000; background:#333;")
+const ctx = app.getContext("2d");
 ctx.scale(.7,.7);
 
 //COUNTERS
