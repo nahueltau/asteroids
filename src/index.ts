@@ -62,8 +62,8 @@ let [asteroidAngle, asteroid] = newAsteroid();
 window.onkeydown = function (e: KeyboardEvent) {
     switch (e.code) {
         case "ArrowUp":
-            ship[0] += 10 * Math.sin(ship.direction);
-            ship[1] += 10 * Math.cos(ship.direction);
+            ship.position[0] += 10 * Math.sin(ship.direction);
+            ship.position[1] += 10 * Math.cos(ship.direction);
             break;
         case "ArrowLeft":
             ship.direction += 0.17;
